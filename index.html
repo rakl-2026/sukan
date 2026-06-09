@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>Kejohanan Olahraga | SMK Raja Abdullah</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet" />
+    <style type="text/tailwindcss">
+        @theme {
+            --font-poppins: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+            --animate-bounce-in: bounce-in 0.8s ease-out;
+            --animate-slide-up: slide-up 0.7s ease-out;
+            --animate-pulse-glow: pulse-glow 2s infinite;
+            --animate-float: float 3s ease-in-out infinite;
+            --animate-medal-pop: medal-pop 0.5s ease-out;
+            --animate-fade-in: fade-in 0.3s ease-out;
+        }
+        html, body {
+            font-family: var(--font-poppins);
+            scroll-behavior: smooth;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fff7ed 30%, #faf5ff 60%, #fefce8 100%);
+            background-attachment: fixed;
+        }
+        @keyframes bounce-in {
+            0% { opacity: 0; transform: scale(0.3); } 50% { transform: scale(1.08); } 70% { transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slide-up {
+            0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,105,180,0.6); } 50% { box-shadow: 0 0 0 18px rgba(255,105,180,0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); }
+        }
+        @keyframes medal-pop {
+            0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); }
+        }
+        @keyframes fade-in {
+            0% { opacity: 0; } 100% { opacity: 1; }
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+        .data-updated {
+            animation: highlight-row 0.6s ease-out;
+        }
+        @keyframes highlight-row {
+            0% { background-color: rgba(255,215,0,0.3); } 100% { background-color: transparent; }
+        }
+        .rainbow-line {
+            background: linear-gradient(90deg, #FF69B4, #FFA500, #FFD700, #8A2BE2, #FF69B4);
+            background-size: 200% 100%;
+            animation: rainbow-shift 4s linear infinite;
+            height: 5px;
+        }
+        @keyframes rainbow-shift {
+            0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; }
+        }
+        .confetti-piece {
+            position: fixed; width: 12px; height: 12px; top: -20px; z-index: 9999; pointer-events: none;
+            animation: confetti-fall linear forwards;
+        }
+        /* Modal backdrop */
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+    <div id="confetti-container" aria-hidden="true"></div>
+
+    <header class="relative overflow-hidden bg-white/70 backdrop-blur-md shadow-lg">
+        <div class="rainbow-line"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-4 animate-slide-up">
+                    <div class="hidden sm:flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-pink-300 to-purple-400 shadow-lg animate-float">
+                        <i class="fa-solid fa-trophy text-white text-2xl"></i>
+                    </div>
+                    <div class="text-center sm:text-left">
+                        <p class="text-sm sm:text-base font-medium text-purple-700 tracking-wide">🏫 SMK (P) JALAN IPOH</p>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold bg-gradient-to-r from-pink-500 via-orange-500 to-purple-600 bg-clip-text text-transparent leading-tight">KARNIVAL OLAHRAGA TAHUNAN</h1>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1 flex items-center justify-center sm:justify-start gap-2">
+                            <i class="fa-regular fa-calendar-days text-pink-400"></i> <span>Sesi 2026</span>
+                            <span class="hidden sm:inline">•</span>
+                            <span class="hidden sm:inline-flex items-center gap-1">
+                                <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
+                                <span class="text-green-600 font-semibold">LIVE</span>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 animate-slide-up">
+                    <div class="text-right hidden sm:block"><p class="text-xs text-gray-400">🕒 Kemas kini terakhir</p><p id="last-updated" class="text-sm font-semibold text-gray-600">--:--:--</p></div>
+                    <button id="refresh-btn" onclick="fetchData(true)" title="Segar semula data" class="flex items-center justify-center w-11 h-11 rounded-full bg-pink-50 hover:bg-pink-100 border-2 border-pink-200 hover:border-pink-400 transition-all duration-300 hover:scale-110 active:scale-95 shadow-md"><i id="refresh-icon" class="fa-solid fa-rotate text-pink-500 text-lg"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <section id="leaderboard-section" class="mb-10 animate-slide-up">
+            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center shadow-lg animate-pulse-glow"><i class="fa-solid fa-ranking-star text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">🏆 Papan Mata Keseluruhan</h2></div>
+            <div id="leaderboard-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan papan mata...</span></div></div></div>
+            <div id="leaderboard-table-wrapper" class="hidden sm:block mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden"><table class="w-full text-left" id="leaderboard-table"><thead><tr class="bg-gradient-to-r from-pink-100 via-orange-50 to-purple-100"><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Ked.</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Rumah</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥇 Emas</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥈 Perak</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥉 Gangsa</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ke-4</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Jumlah</th></tr></thead><tbody id="leaderboard-tbody"><tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada data</td></tr></tbody></table></div>
+        </section>
+
+        <section id="events-section" class="mb-10 animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-300 to-cyan-400 flex items-center justify-center shadow-lg"><i class="fa-solid fa-list-ol text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">📋 Senarai Acara</h2><span id="event-count" class="text-sm bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-semibold">0 acara</span></div>
+            <div id="events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan acara...</span></div></div></div>
+        </section>
+    </main>
+
+    <!-- Modal Keputusan Acara -->
+    <div id="results-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="modal-backdrop absolute inset-0" onclick="closeResultsModal()"></div>
+        <div class="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-pink-100 w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto animate-fade-in">
+            <div class="sticky top-0 bg-white/80 backdrop-blur-sm rounded-t-3xl p-5 border-b border-pink-100 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-pink-500"></i>
+                    <span id="modal-acara-name">Keputusan Acara</span>
+                </h3>
+                <button onclick="closeResultsModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-5">
+                <div id="modal-results-content">
+                    <div class="flex items-center justify-center py-10 text-gray-400">
+                        <i class="fa-solid fa-spinner fa-spin-pulse text-2xl mr-3"></i> Memuatkan keputusan...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-50 animate-bounce-in" style="animation-delay: 1s;">
+        <a href="admin.html" title="Login Admin" class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 active:scale-95 transition-all duration-300"><i class="fa-solid fa-lock text-sm"></i><span class="hidden sm:inline">Login Admin</span></a>
+    </div>
+
+    <footer class="bg-white/60 backdrop-blur-sm border-t border-pink-100 mt-10"><div class="max-w-7xl mx-auto px-4 py-5 text-center"><p class="text-sm text-gray-500">© 2026 <span class="font-semibold text-pink-600">SMK (P) Jalan Ipoh</span> — Kejohanan Olahraga Tahunan <span class="mx-2">🌸</span> <span class="text-xs text-gray-400">Dibina dengan penuh semangat kesukanan</span></p></div></footer>
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] hidden"><div class="bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-3 min-w-[280px] animate-slide-up"><i id="toast-icon" class="text-xl"></i><span id="toast-msg" class="text-sm font-medium text-gray-700"></span></div></div>
+
+    <script>
+        (function () {
+            const API_URL = 'https://script.google.com/macros/s/AKfycby0Fb2WmJvBHWX1sYhK5WhK3jab2wVvcRWLVAi3w88zL1SK2Qjfc9tfRXsbKfSoJFBR/exec';
+            const REFRESH_INTERVAL = 15000;
+
+            let houseColors = {};
+            let cachedData = null;
+            let previousLeaderboard = null;
+            let isFirstLoad = true;
+
+            function getHouseColor(houseName) {
+                if (houseColors[houseName]) return houseColors[houseName];
+                return '#9E9E9E';
+            }
+
+            async function fetchData(isManual) {
+                const refreshIcon = document.getElementById('refresh-icon');
+                if (refreshIcon) refreshIcon.classList.add('fa-spin');
+                try {
+                    const response = await fetch(API_URL + '?action=all', { cache: 'no-store' });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const json = await response.json();
+                    if (json && json.leaderboard) {
+                        if (json.rumah && Array.isArray(json.rumah)) {
+                            json.rumah.forEach(r => { houseColors[r.nama] = r.warna; });
+                        }
+                        if (previousLeaderboard) checkForChanges(json.leaderboard, previousLeaderboard);
+                        previousLeaderboard = JSON.parse(JSON.stringify(json.leaderboard));
+                        cachedData = json;
+                        renderAll(json);
+                        updateTimestamp();
+                        if (isFirstLoad) {
+                            isFirstLoad = false;
+                            spawnConfetti(30);
+                        }
+                        if (isManual) showToast('success', '✅ Data telah disegarkan!');
+                    } else {
+                        if (isManual) showToast('warning', '⚠️ Tiada data diterima.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (isManual) showToast('error', '❌ Gagal menyambung ke pelayan.');
+                } finally {
+                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                }
+            }
+
+            function checkForChanges(newLB, oldLB) {
+                for (let i = 0; i < newLB.length; i++) {
+                    if (newLB[i].jumlah_mata !== oldLB[i].jumlah_mata || newLB[i].emas !== oldLB[i].emas) {
+                        spawnConfetti(15);
+                        highlightHouseCard(newLB[i].rumah);
+                        break;
+                    }
+                }
+            }
+
+            function highlightHouseCard(houseName) {
+                const card = document.getElementById(`house-card-${houseName}`);
+                if (card) {
+                    card.classList.add('data-updated');
+                    setTimeout(() => card.classList.remove('data-updated'), 1000);
+                }
+            }
+
+            function renderAll(data) {
+                renderLeaderboard(data.leaderboard);
+                renderLeaderboardTable(data.leaderboard);
+                renderEvents(data.acara);
+            }
+
+            function renderLeaderboard(leaderboard) {
+                const grid = document.getElementById('leaderboard-grid');
+                if (!grid) return;
+                const sorted = [...leaderboard].sort((a, b) => b.jumlah_mata - a.jumlah_mata);
+                grid.innerHTML = sorted.map((house, index) => {
+                    const warna = getHouseColor(house.rumah);
+                    const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                    const rankLabel = index === 0 ? 'Juara' : index === 1 ? 'Naib Juara' : index === 2 ? 'Ketiga' : `Ke-${index + 1}`;
+                    return `
+                    <div id="house-card-${house.rumah}" class="group relative bg-white/80 backdrop-blur-sm rounded-2xl border-2 p-5 sm:p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-slide-up overflow-hidden"
+                         style="border-color: ${warna}; animation-delay: ${index * 0.1}s;">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-20 blur-2xl" style="background-color: ${warna};"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-4xl sm:text-5xl" style="animation: medal-pop 0.6s ease-out ${index * 0.2}s both;">${medalEmoji}</span>
+                            <span class="text-xs font-bold px-3 py-1 rounded-full" style="background-color: ${warna}33; color: ${warna};">${rankLabel}</span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-extrabold mb-3" style="color: ${warna};">${house.rumah}</h3>
+                        <div class="flex items-baseline gap-2 mb-4">
+                            <span class="text-4xl sm:text-5xl font-black" style="color: ${warna};">${house.jumlah_mata}</span>
+                            <span class="text-sm font-medium text-gray-500">mata</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 text-center">
+                            <div class="bg-yellow-50 rounded-xl py-2 px-1 border border-yellow-200"><span class="block text-lg">🥇</span><span class="text-sm font-bold text-yellow-700">${house.emas}</span></div>
+                            <div class="bg-gray-50 rounded-xl py-2 px-1 border border-gray-200"><span class="block text-lg">🥈</span><span class="text-sm font-bold text-gray-600">${house.perak}</span></div>
+                            <div class="bg-orange-50 rounded-xl py-2 px-1 border border-orange-200"><span class="block text-lg">🥉</span><span class="text-sm font-bold text-orange-700">${house.gangsa}</span></div>
+                            <div class="bg-blue-50 rounded-xl py-2 px-1 border border-blue-200"><span class="block text-lg">4️⃣</span><span class="text-sm font-bold text-blue-600">${house.tempat_ke4}</span></div>
+                        </div>
+                        <div class="mt-4 w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-700 ease-out" style="width: ${getProgressPercentage(house.jumlah_mata, sorted)}%; background-color: ${warna};"></div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            function renderLeaderboardTable(leaderboard) {
+                const tbody = document.getElementById('leaderboard-tbody');
+                if (!tbody) return;
+                const sorted = [...leaderboard].sort((a, b) => b.jumlah_mata - a.jumlah_mata);
+                tbody.innerHTML = sorted.map((house, index) => {
+                    const warna = getHouseColor(house.rumah);
+                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                    return `
+                    <tr class="border-b border-gray-50 hover:bg-pink-50/50 transition-colors duration-200" id="table-row-${house.rumah}">
+                        <td class="px-6 py-4"><span class="text-xl font-bold">${rankEmoji}</span></td>
+                        <td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full" style="background-color: ${warna};"></div><span class="font-bold text-gray-800">${house.rumah}</span></div></td>
+                        <td class="px-6 py-4 text-center font-bold text-yellow-600">${house.emas}</td>
+                        <td class="px-6 py-4 text-center font-bold text-gray-500">${house.perak}</td>
+                        <td class="px-6 py-4 text-center font-bold text-orange-600">${house.gangsa}</td>
+                        <td class="px-6 py-4 text-center text-gray-500">${house.tempat_ke4}</td>
+                        <td class="px-6 py-4 text-center"><span class="inline-block px-4 py-1 rounded-full text-lg font-black" style="background-color: ${warna}33; color: ${warna};">${house.jumlah_mata}</span></td>
+                    </tr>`;
+                }).join('');
+            }
+
+            function renderEvents(acaraList) {
+                const grid = document.getElementById('events-grid');
+                const countEl = document.getElementById('event-count');
+                if (!grid) return;
+                if (!acaraList || acaraList.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">📭 Tiada acara didaftarkan.</div>';
+                    if (countEl) countEl.textContent = '0 acara';
+                    return;
+                }
+                if (countEl) countEl.textContent = `${acaraList.length} acara`;
+                const jenisIkon = { 'Balapan': '🏃‍♀️', 'Padang': '🎯' };
+                const jenisBg = { 'Balapan': 'from-sky-50 to-blue-50 border-sky-200', 'Padang': 'from-emerald-50 to-teal-50 border-emerald-200' };
+                grid.innerHTML = acaraList.map((acara, i) => {
+                    const ikon = jenisIkon[acara.jenis] || '🏅';
+                    const bgGradient = jenisBg[acara.jenis] || 'from-gray-50 to-gray-100 border-gray-200';
+                    return `
+                    <div class="event-card group bg-white/70 backdrop-blur-sm rounded-2xl border-2 bg-gradient-to-r ${bgGradient} p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up cursor-pointer"
+                         style="animation-delay: ${i * 0.08}s;"
+                         data-acara-id="${acara.acara_id}"
+                         data-acara-nama="${acara.nama_acara}"
+                         onclick="openResultsModal(this)">
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="text-3xl">${ikon}</span>
+                            <span class="text-xs font-bold px-2 py-1 rounded-full bg-white/80 text-gray-600 border border-gray-200">${acara.kategori}</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-base sm:text-lg leading-tight mb-2">${acara.nama_acara}</h4>
+                        <div class="flex items-center gap-3 text-xs text-gray-500">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-tag text-gray-400"></i> ${acara.jenis}</span>
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-ruler text-gray-400"></i> ${acara.unit}</span>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-200/60 flex items-center justify-between">
+                            <p class="text-xs text-gray-400 flex items-center gap-1">
+                                <i class="fa-solid fa-trophy text-yellow-400 text-xs"></i> Rekod: <span class="font-semibold text-gray-600">${acara.rekod_kejohanan} ${acara.unit}</span>
+                            </p>
+                            <span class="text-xs text-pink-500 font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-magnifying-glass"></i> Keputusan
+                            </span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // ========== MODAL FUNCTIONS ==========
+            window.openResultsModal = async function(cardElement) {
+                const acaraId = cardElement.dataset.acaraId;
+                const acaraNama = cardElement.dataset.acaraNama;
+                document.getElementById('modal-acara-name').textContent = acaraNama;
+                const modal = document.getElementById('results-modal');
+                const contentDiv = document.getElementById('modal-results-content');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                contentDiv.innerHTML = '<div class="flex items-center justify-center py-10 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl mr-3"></i> Memuatkan keputusan...</div>';
+
+                try {
+                    const res = await fetch(API_URL + `?action=results&acara_id=${acaraId}`);
+                    const results = await res.json();
+                    if (!results || results.length === 0) {
+                        contentDiv.innerHTML = '<div class="text-center py-10 text-gray-500">📭 Tiada keputusan untuk acara ini.</div>';
+                        return;
+                    }
+                    // Render table
+                    let html = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gradient-to-r from-pink-50 to-purple-50 text-gray-700 text-sm">
+                                    <th class="px-4 py-3">Ked.</th>
+                                    <th class="px-4 py-3">Nama</th>
+                                    <th class="px-4 py-3">Rumah</th>
+                                    <th class="px-4 py-3">Prestasi</th>
+                                    <th class="px-4 py-3">Mata</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    results.forEach(r => {
+                        const kedIcon = r.kedudukan === 1 ? '🥇' : r.kedudukan === 2 ? '🥈' : r.kedudukan === 3 ? '🥉' : r.kedudukan === 4 ? '🏅' : r.kedudukan;
+                        const warna = getHouseColor(r.rumah);
+                        html += `
+                        <tr class="border-b border-gray-100 hover:bg-pink-50/50">
+                            <td class="px-4 py-3 font-bold text-lg">${kedIcon}</td>
+                            <td class="px-4 py-3 font-medium">${r.nama_peserta}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center gap-1">
+                                    <span class="w-3 h-3 rounded-full" style="background-color: ${warna};"></span>
+                                    ${r.rumah}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 font-mono">${r.prestasi}</td>
+                            <td class="px-4 py-3 font-bold" style="color: ${warna};">${r.mata}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    contentDiv.innerHTML = html;
+                } catch (err) {
+                    contentDiv.innerHTML = '<div class="text-center py-10 text-red-500">❌ Gagal memuatkan keputusan.</div>';
+                }
+            };
+
+            window.closeResultsModal = function() {
+                const modal = document.getElementById('results-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            // Tutup modal dengan ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeResultsModal();
+            });
+
+            function getProgressPercentage(mata, sortedList) {
+                const max = sortedList.length > 0 ? sortedList[0].jumlah_mata : 1;
+                if (max === 0) return 0;
+                return Math.min(100, Math.round((mata / max) * 100));
+            }
+
+            function updateTimestamp() {
+                const el = document.getElementById('last-updated');
+                if (el) el.textContent = new Date().toLocaleTimeString('ms-MY', { hour12: false });
+            }
+
+            function showToast(type, message) {
+                const toast = document.getElementById('toast'), icon = document.getElementById('toast-icon'), msg = document.getElementById('toast-msg');
+                if (!toast || !icon || !msg) return;
+                icon.className = {
+                    'success': 'fa-solid fa-circle-check text-green-500',
+                    'error': 'fa-solid fa-circle-xmark text-red-500',
+                    'warning': 'fa-solid fa-triangle-exclamation text-amber-500'
+                }[type] || 'fa-solid fa-info-circle text-blue-500';
+                msg.textContent = message;
+                toast.classList.remove('hidden');
+                clearTimeout(toast._timeout);
+                toast._timeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+            }
+
+            function spawnConfetti(count = 25) {
+                const container = document.getElementById('confetti-container');
+                if (!container) return;
+                const colors = ['#FF69B4', '#FFA500', '#FFD700', '#8A2BE2', '#FF4081', '#00E5FF', '#76FF03', '#FF6D00', '#E040FB'];
+                const frag = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    piece.style.animationDelay = Math.random() * 0.5 + 's';
+                    piece.style.width = (Math.random() * 8 + 6) + 'px';
+                    piece.style.height = (Math.random() * 8 + 6) + 'px';
+                    frag.appendChild(piece);
+                }
+                container.appendChild(frag);
+                setTimeout(() => { while (container.firstChild) container.removeChild(container.firstChild); }, 4000);
+            }
+
+            fetchData();
+            setInterval(() => fetchData(false), REFRESH_INTERVAL);
+            window.fetchData = fetchData;
+        })();
+    </script>
+</body>
+</html>
