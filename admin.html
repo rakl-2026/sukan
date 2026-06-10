@@ -40,6 +40,40 @@
             0% { background-position: 0% 50%; }
             100% { background-position: 200% 50%; }
         }
+        /* Gaya cetakan */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 1rem;
+                background: white;
+                font-size: 12pt;
+            }
+            .print-area table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .print-area th, .print-area td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .print-area th {
+                background-color: #f3f4f6;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased">
@@ -71,11 +105,10 @@
                 <button onclick="switchTab('acara')" id="tab-acara" class="tab-active px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"><i class="fa-solid fa-medal"></i> Keputusan Acara</button>
                 <button onclick="switchTab('sukantara')" id="tab-sukantara" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-purple-100 transition-all duration-300 flex items-center gap-2"><i class="fa-solid fa-person-running"></i> Sukantara</button>
                 <button onclick="switchTab('merentas')" id="tab-merentas" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-purple-100 transition-all duration-300 flex items-center gap-2"><i class="fa-solid fa-mountain"></i> Merentas Desa</button>
-                <!-- Tab Baharu: Kutipan Pingat Individu -->
                 <button onclick="switchTab('pingat')" id="tab-pingat" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-purple-100 transition-all duration-300 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Pingat Individu</button>
             </div>
 
-            <!-- Tab: Keputusan Acara (Kekal Asal) -->
+            <!-- Tab: Keputusan Acara (Kekal Asal + butang cetak) -->
             <div id="content-acara" class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100 p-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-list-check text-purple-500 mr-2"></i>Masukkan / Edit Keputusan Acara</h2>
                 <div class="mb-4">
@@ -96,6 +129,10 @@
                         </button>
                         <button id="btn-delete-results" onclick="deleteResults()" class="hidden py-3 px-6 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition disabled:opacity-50">
                             <i class="fa-solid fa-trash"></i> Padam Semua Keputusan
+                        </button>
+                        <!-- BUTANG CETAK UNTUK KEPUTUSAN ACARA -->
+                        <button onclick="printAcaraTable()" class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-print"></i> Cetak Keputusan
                         </button>
                     </div>
                 </div>
@@ -118,9 +155,14 @@
                 <div id="merentas-message" class="mt-4 text-center text-sm font-medium hidden"></div>
             </div>
 
-            <!-- Tab Baharu: Kutipan Pingat Individu -->
+            <!-- Tab: Kutipan Pingat Individu + butang cetak -->
             <div id="content-pingat" class="hidden bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-yellow-100 p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Kutipan Pingat Individu</h2>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Kutipan Pingat Individu</h2>
+                    <button onclick="printPingatTable()" class="py-2 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md flex items-center gap-2 transition">
+                        <i class="fa-solid fa-print"></i> Cetak Jadual Pingat
+                    </button>
+                </div>
                 <p class="text-sm text-gray-500 mb-4">Disusun mengikut emas terbanyak, diikuti perak dan gangsa.</p>
                 <div id="pingat-table-container" class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -327,20 +369,20 @@
                 if (!currentAcaraId) return;
                 const rows = acaraTbody.querySelectorAll('tr');
                 const results = [];
-                rows.forEach(row => {
+                for (const row of rows) {
                     const kedSelect = row.querySelector('.kedudukan-select');
                     const prestasiInput = row.querySelector('.prestasi-input');
                     const mataInput = row.querySelector('.mata-input');
-                    if (!kedSelect || !prestasiInput || !mataInput) return;
+                    if (!kedSelect || !prestasiInput || !mataInput) continue;
                     const ked = kedSelect.value;
-                    if (!ked) return;
+                    if (!ked) continue;
                     const pesertaId = kedSelect.dataset.peserta;
                     const rumah = row.cells[1].textContent.trim();
                     const prestasi = prestasiInput.value.trim();
                     const mata = mataInput.value;
                     if (!prestasi) { showToast('error','Isi prestasi untuk semua yang ada kedudukan.'); return; }
                     results.push({ acara_id: currentAcaraId, peserta_id: pesertaId, rumah, kedudukan: ked, prestasi, mata: parseInt(mata) });
-                });
+                }
                 if (results.length === 0) { showToast('info','Tiada keputusan untuk disimpan.'); return; }
 
                 setButtonsDisabled(true);
@@ -362,7 +404,6 @@
                     }
                 } catch (err) {
                     acaraMessage.textContent = '❌ Ralat rangkaian.';
-                    acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
                     acaraMessage.classList.remove('hidden');
                 } finally {
                     setButtonsDisabled(false);
@@ -458,9 +499,9 @@
                 }
                 tbody.innerHTML = data.map(p => `
                     <tr class="border-b border-gray-100 hover:bg-yellow-50/50">
-                        <td class="px-3 py-2 font-medium">${p.nama}</td>
-                        <td class="px-3 py-2">${p.rumah}</td>
-                        <td class="px-3 py-2">${p.no_bib}</td>
+                        <td class="px-3 py-2 font-medium">${escapeHtml(p.nama)}</td>
+                        <td class="px-3 py-2">${escapeHtml(p.rumah)}</td>
+                        <td class="px-3 py-2">${escapeHtml(p.no_bib)}</td>
                         <td class="px-3 py-2 text-center font-bold text-yellow-600">${p.emas}</td>
                         <td class="px-3 py-2 text-center font-bold text-gray-500">${p.perak}</td>
                         <td class="px-3 py-2 text-center font-bold text-orange-600">${p.gangsa}</td>
@@ -469,6 +510,73 @@
                     </tr>
                 `).join('');
             }
+
+            function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+            // ===== FUNGSI CETAK UNTUK KEPUTUSAN ACARA =====
+            window.printAcaraTable = function() {
+                const container = document.getElementById('acara-table-container');
+                const selectElem = document.getElementById('select-acara');
+                const selectedText = selectElem.options[selectElem.selectedIndex]?.text || 'Acara tidak dipilih';
+                if (!container || container.classList.contains('hidden')) {
+                    showToast('error', 'Tiada keputusan acara untuk dicetak. Sila pilih acara terlebih dahulu.');
+                    return;
+                }
+                const table = container.querySelector('table');
+                if (!table || table.rows.length <= 1) {
+                    showToast('error', 'Tiada data untuk dicetak.');
+                    return;
+                }
+                const originalTitle = document.title;
+                const printContent = document.createElement('div');
+                printContent.className = 'print-area';
+                const header = document.createElement('div');
+                header.style.marginBottom = '20px';
+                header.style.textAlign = 'center';
+                header.innerHTML = `<h2 style="margin:0;">Keputusan Acara: ${escapeHtml(selectedText)}</h2><p style="margin:5px 0 0;">SMK Raja Abdullah</p>`;
+                const tableClone = table.cloneNode(true);
+                // Bersihkan elemen input/select dalam salinan untuk cetakan (tukar kepada teks)
+                tableClone.querySelectorAll('.kedudukan-select').forEach(sel => {
+                    const selectedVal = sel.options[sel.selectedIndex]?.textContent || '-';
+                    const td = sel.closest('td');
+                    if (td) td.textContent = selectedVal;
+                });
+                tableClone.querySelectorAll('.prestasi-input, .mata-input').forEach(inp => {
+                    const value = inp.value || '';
+                    const td = inp.closest('td');
+                    if (td) td.textContent = value;
+                });
+                printContent.appendChild(header);
+                printContent.appendChild(tableClone);
+                document.body.appendChild(printContent);
+                window.print();
+                document.body.removeChild(printContent);
+                showToast('success', 'Cetakan dihantar.');
+            };
+
+            // ===== FUNGSI CETAK UNTUK JADUAL PINGAT =====
+            window.printPingatTable = function() {
+                const container = document.getElementById('pingat-table-container');
+                if (!container) return;
+                const table = container.querySelector('table');
+                if (!table || table.rows.length <= 1) {
+                    showToast('error', 'Tiada data pingat untuk dicetak.');
+                    return;
+                }
+                const printDiv = document.createElement('div');
+                printDiv.className = 'print-area';
+                const header = document.createElement('div');
+                header.style.marginBottom = '20px';
+                header.style.textAlign = 'center';
+                header.innerHTML = `<h2 style="margin:0;">Kutipan Pingat Individu</h2><p style="margin:5px 0 0;">SMK Raja Abdullah</p>`;
+                const tableClone = table.cloneNode(true);
+                printDiv.appendChild(header);
+                printDiv.appendChild(tableClone);
+                document.body.appendChild(printDiv);
+                window.print();
+                document.body.removeChild(printDiv);
+                showToast('success', 'Cetakan jadual pingat dihantar.');
+            };
 
             document.getElementById('password-input').focus();
         })();
