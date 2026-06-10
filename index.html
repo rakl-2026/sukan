@@ -109,19 +109,40 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <!-- BAHAGIAN ATAS: Papan Mata Keseluruhan (kad) -->
         <section id="leaderboard-section" class="mb-10 animate-slide-up">
             <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center shadow-lg animate-pulse-glow"><i class="fa-solid fa-ranking-star text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">🏆 Papan Mata Keseluruhan</h2></div>
             <div id="leaderboard-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan papan mata...</span></div></div></div>
-            <div id="leaderboard-table-wrapper" class="hidden sm:block mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden"><table class="w-full text-left" id="leaderboard-table"><thead><tr class="bg-gradient-to-r from-pink-100 via-orange-50 to-purple-100"><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Ked.</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Rumah</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥇 Emas</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥈 Perak</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥉 Gangsa</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ke-4</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Jumlah</th></tr></thead><tbody id="leaderboard-tbody"><tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada数据</tr></tbody>}</div>
+            
+            <!-- BAHAGIAN TENGAH: Jadual Kutipan Pingat (kini sentiasa kelihatan, buang hidden) -->
+            <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <table class="w-full text-left" id="leaderboard-table">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-pink-100 via-orange-50 to-purple-100">
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Ked.</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Rumah</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥇 Emas</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥈 Perak</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥉 Gangsa</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ke-4</th>
+                            <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-tbody">
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada data</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
+        <!-- BAHAGIAN BAWAH: Senarai Acara -->
         <section id="events-section" class="mb-10 animate-slide-up" style="animation-delay: 0.2s;">
             <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-300 to-cyan-400 flex items-center justify-center shadow-lg"><i class="fa-solid fa-list-ol text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">📋 Senarai Acara</h2><span id="event-count" class="text-sm bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-semibold">0 acara</span></div>
             <div id="events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan acara...</span></div></div></div>
         </section>
     </main>
 
-    <!-- Modal Keputusan Acara -->
+    <!-- Modal Keputusan Acara (kekal di tengah skrin) -->
     <div id="results-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="modal-backdrop absolute inset-0" onclick="closeResultsModal()"></div>
         <div class="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-pink-100 w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto animate-fade-in">
@@ -317,7 +338,7 @@
                 }).join('');
             }
 
-            // ========== MODAL FUNCTIONS (DIUBAH: SUSUN IKUT KEDUDUKAN) ==========
+            // ========== MODAL FUNCTIONS (susunan keputusan mengikut kedudukan) ==========
             window.openResultsModal = async function(cardElement) {
                 const acaraId = cardElement.dataset.acaraId;
                 const acaraNama = cardElement.dataset.acaraNama;
@@ -336,14 +357,13 @@
                         return;
                     }
                     
-                    // **Penyusunan mengikut kedudukan (1,2,3,...)**
+                    // SUSUNAN MENGIKUT KEDUDUKAN (1,2,3,...)
                     results.sort((a, b) => {
                         const kedA = a.kedudukan ? parseInt(a.kedudukan) : 999;
                         const kedB = b.kedudukan ? parseInt(b.kedudukan) : 999;
                         return kedA - kedB;
                     });
 
-                    // Render table
                     let html = `
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -381,7 +401,6 @@
                 }
             };
 
-            // Fungsi escapeHtml untuk keselamatan
             function escapeHtml(str) {
                 if (!str) return '';
                 return str.replace(/[&<>]/g, function(m) {
@@ -398,7 +417,6 @@
                 modal.classList.remove('flex');
             };
 
-            // Tutup modal dengan ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closeResultsModal();
             });
