@@ -69,7 +69,6 @@
             position: fixed; width: 12px; height: 12px; top: -20px; z-index: 9999; pointer-events: none;
             animation: confetti-fall linear forwards;
         }
-        /* Modal backdrop */
         .modal-backdrop {
             background-color: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
@@ -112,7 +111,7 @@
         <section id="leaderboard-section" class="mb-10 animate-slide-up">
             <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center shadow-lg animate-pulse-glow"><i class="fa-solid fa-ranking-star text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">🏆 Papan Mata Keseluruhan</h2></div>
             <div id="leaderboard-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan papan mata...</span></div></div></div>
-            <div id="leaderboard-table-wrapper" class="hidden sm:block mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden"><table class="w-full text-left" id="leaderboard-table"><thead><tr class="bg-gradient-to-r from-pink-100 via-orange-50 to-purple-100"><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Ked.</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Rumah</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥇 Emas</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥈 Perak</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥉 Gangsa</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ke-4</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Jumlah</th></tr></thead><tbody id="leaderboard-tbody"><tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada data</td></tr></tbody></table></div>
+            <div id="leaderboard-table-wrapper" class="hidden sm:block mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden"><table class="w-full text-left" id="leaderboard-table"><thead><tr class="bg-gradient-to-r from-pink-100 via-orange-50 to-purple-100"><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Ked.</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Rumah</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥇 Emas</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥈 Perak</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">🥉 Gangsa</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ke-4</th><th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Jumlah</th></tr></thead><tbody id="leaderboard-tbody"><tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada数据</tr></tbody></table></div>
         </section>
 
         <section id="events-section" class="mb-10 animate-slide-up" style="animation-delay: 0.2s;">
@@ -294,7 +293,7 @@
                     <div class="event-card group bg-white/70 backdrop-blur-sm rounded-2xl border-2 bg-gradient-to-r ${bgGradient} p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up cursor-pointer"
                          style="animation-delay: ${i * 0.08}s;"
                          data-acara-id="${acara.acara_id}"
-                         data-acara-nama="${acara.nama_acara}"
+                         data-acara-nama="${acara.nama_acara.replace(/"/g, '&quot;')}"
                          onclick="openResultsModal(this)">
                         <div class="flex items-start justify-between mb-3">
                             <span class="text-3xl">${ikon}</span>
@@ -317,7 +316,7 @@
                 }).join('');
             }
 
-            // ========== MODAL FUNCTIONS ==========
+            // ========== MODAL FUNCTIONS (DIPERBAIKI - SUSUN MENGIKUT KEDUDUKAN) ==========
             window.openResultsModal = async function(cardElement) {
                 const acaraId = cardElement.dataset.acaraId;
                 const acaraNama = cardElement.dataset.acaraNama;
@@ -330,12 +329,14 @@
 
                 try {
                     const res = await fetch(API_URL + `?action=results&acara_id=${acaraId}`);
-                    const results = await res.json();
+                    let results = await res.json();
                     if (!results || results.length === 0) {
                         contentDiv.innerHTML = '<div class="text-center py-10 text-gray-500">📭 Tiada keputusan untuk acara ini.</div>';
                         return;
                     }
-                    // Render table
+                    // ** PEMBAIKIKAN: Susun mengikut kedudukan (1,2,3,...) **
+                    results.sort((a, b) => parseInt(a.kedudukan) - parseInt(b.kedudukan));
+                    
                     let html = `
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -349,29 +350,41 @@
                                 </tr>
                             </thead>
                             <tbody>`;
-                    results.forEach(r => {
-                        const kedIcon = r.kedudukan === 1 ? '🥇' : r.kedudukan === 2 ? '🥈' : r.kedudukan === 3 ? '🥉' : r.kedudukan === 4 ? '🏅' : r.kedudukan;
+                    for (const r of results) {
+                        const kedIcon = r.kedudukan == 1 ? '🥇' : r.kedudukan == 2 ? '🥈' : r.kedudukan == 3 ? '🥉' : r.kedudukan == 4 ? '🏅' : r.kedudukan;
                         const warna = getHouseColor(r.rumah);
                         html += `
                         <tr class="border-b border-gray-100 hover:bg-pink-50/50">
                             <td class="px-4 py-3 font-bold text-lg">${kedIcon}</td>
-                            <td class="px-4 py-3 font-medium">${r.nama_peserta}</td>
+                            <td class="px-4 py-3 font-medium">${escapeHtml(r.nama_peserta)}</td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center gap-1">
                                     <span class="w-3 h-3 rounded-full" style="background-color: ${warna};"></span>
-                                    ${r.rumah}
+                                    ${escapeHtml(r.rumah)}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 font-mono">${r.prestasi}</td>
+                            <td class="px-4 py-3 font-mono">${escapeHtml(r.prestasi)}</td>
                             <td class="px-4 py-3 font-bold" style="color: ${warna};">${r.mata}</td>
                         </tr>`;
-                    });
+                    }
                     html += '</tbody></table></div>';
                     contentDiv.innerHTML = html;
                 } catch (err) {
+                    console.error(err);
                     contentDiv.innerHTML = '<div class="text-center py-10 text-red-500">❌ Gagal memuatkan keputusan.</div>';
                 }
             };
+
+            // Helper escape untuk elakkan XSS
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/[&<>]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    return m;
+                });
+            }
 
             window.closeResultsModal = function() {
                 const modal = document.getElementById('results-modal');
@@ -379,7 +392,6 @@
                 modal.classList.remove('flex');
             };
 
-            // Tutup modal dengan ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closeResultsModal();
             });
