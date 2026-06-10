@@ -321,66 +321,76 @@
             });
 
             // ========== Fungsi renderAcaraTable DENGAN SORTING MENGIKUT KEDUDUKAN ==========
-            function renderAcaraTable(pesertaList, resultsList) {
-                acaraTbody.innerHTML = '';
-                if (!pesertaList.length) {
-                    acaraTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
-                    acaraTableContainer.classList.remove('hidden');
-                    btnDelete.classList.add('hidden');
-                    return;
-                }
+        function renderAcaraTable(pesertaList, resultsList) {
+    acaraTbody.innerHTML = '';
+    if (!pesertaList.length) {
+        acaraTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
+        acaraTableContainer.classList.remove('hidden');
+        btnDelete.classList.add('hidden');
+        return;
+    }
 
-                // Bina peta kedudukan untuk setiap peserta
-                const resultMap = {};
-                if (resultsList) resultsList.forEach(r => { resultMap[r.peserta_id] = r; });
+    // Bina peta keputusan
+    const resultMap = {};
+    if (resultsList) resultsList.forEach(r => { resultMap[r.peserta_id] = r; });
 
-                // Salin pesertaList dan tambah maklumat kedudukan
-                const pesertaWithRank = pesertaList.map(p => {
-                    const result = resultMap[p.peserta_id];
-                    let ked = result ? parseInt(result.kedudukan) : null;
-                    // Peserta tanpa kedudukan diletakkan di hujung (gunakan nilai besar 999)
-                    const sortKey = (ked !== null && !isNaN(ked)) ? ked : 999;
-                    return { ...p, kedudukan: ked, sortKey: sortKey, result: result };
-                });
-
-                // Isih mengikut sortKey (kedudukan menaik)
-                pesertaWithRank.sort((a, b) => a.sortKey - b.sortKey);
-
-                const kedOptions = Object.keys(pointsMapping).sort((a,b) => parseInt(a)-parseInt(b));
-                
-                // Loop peserta yang telah diisih
-                pesertaWithRank.forEach(p => {
-                    const result = p.result;
-                    const tr = document.createElement('tr');
-                    tr.className = 'border-b border-gray-100 hover:bg-purple-50/50';
-                    tr.innerHTML = `
-                        <td class="px-3 py-2">${p.nama_peserta}</td>
-                        <td class="px-3 py-2">${p.rumah}</td>
-                        <td class="px-3 py-2">${p.no_bib}</td>
-                        <td class="px-3 py-2">
-                            <select class="kedudukan-select border border-gray-300 rounded px-2 py-1 text-sm" data-peserta="${p.peserta_id}">
-                                <option value="">-</option>
-                                ${kedOptions.map(k => `<option value="${k}" ${result && result.kedudukan == k ? 'selected' : ''}>${k}</option>`).join('')}
-                            </select>
-                        </td>
-                        <td class="px-3 py-2"><input type="text" class="prestasi-input border border-gray-300 rounded px-2 py-1 text-sm w-24" data-peserta="${p.peserta_id}" value="${result ? result.prestasi : ''}" placeholder="cth: 13.10" /></td>
-                        <td class="px-3 py-2"><input type="number" class="mata-input border border-gray-200 rounded px-2 py-1 text-sm w-16 bg-gray-100" data-peserta="${p.peserta_id}" readonly value="${result ? result.mata : '0'}" /></td>
-                    `;
-                    acaraTbody.appendChild(tr);
-                    const kedSelect = tr.querySelector('.kedudukan-select');
-                    const mataInput = tr.querySelector('.mata-input');
-                    kedSelect.addEventListener('change', function() {
-                        const ked = this.value;
-                        mataInput.value = (ked && pointsMapping[ked]) ? pointsMapping[ked] : 0;
-                    });
-                });
-                acaraTableContainer.classList.remove('hidden');
-                if (resultsList && resultsList.length > 0) {
-                    btnDelete.classList.remove('hidden');
-                } else {
-                    btnDelete.classList.add('hidden');
-                }
-            }
+    const kedOptions = Object.keys(pointsMapping).sort((a,b) => parseInt(a)-parseInt(b));
+    
+    // Bina array baris sementara
+    const rows = [];
+    for (const p of pesertaList) {
+        const result = resultMap[p.peserta_id] || null;
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-100 hover:bg-purple-50/50';
+        tr.setAttribute('data-peserta-id', p.peserta_id);
+        
+        // Dapatkan nilai kedudukan (jika ada)
+        let kedValue = result ? result.kedudukan : '';
+        let kedNumber = (kedValue && !isNaN(parseInt(kedValue))) ? parseInt(kedValue) : 999;
+        
+        tr.innerHTML = `
+            <td class="px-3 py-2">${escapeHtml(p.nama_peserta)}</td>
+            <td class="px-3 py-2">${escapeHtml(p.rumah)}</td>
+            <td class="px-3 py-2">${escapeHtml(p.no_bib)}</td>
+            <td class="px-3 py-2">
+                <select class="kedudukan-select border border-gray-300 rounded px-2 py-1 text-sm" data-peserta="${p.peserta_id}">
+                    <option value="">-</option>
+                    ${kedOptions.map(k => `<option value="${k}" ${result && result.kedudukan == k ? 'selected' : ''}>${k}</option>`).join('')}
+                </select>
+            </td>
+            <td class="px-3 py-2"><input type="text" class="prestasi-input border border-gray-300 rounded px-2 py-1 text-sm w-24" data-peserta="${p.peserta_id}" value="${result ? escapeHtml(result.prestasi) : ''}" placeholder="cth: 13.10" /></td>
+            <td class="px-3 py-2"><input type="number" class="mata-input border border-gray-200 rounded px-2 py-1 text-sm w-16 bg-gray-100" data-peserta="${p.peserta_id}" readonly value="${result ? result.mata : '0'}" /></td>
+        `;
+        
+        // Simpan baris bersama nilai kedudukan (nombor)
+        rows.push({ tr, ked: kedNumber });
+        
+        // Event listener untuk dropdown
+        const kedSelect = tr.querySelector('.kedudukan-select');
+        const mataInput = tr.querySelector('.mata-input');
+        kedSelect.addEventListener('change', function() {
+            const ked = this.value;
+            mataInput.value = (ked && pointsMapping[ked]) ? pointsMapping[ked] : 0;
+            // Selepas tukar kedudukan, kita tidak perlu susun semula sekarang – serahkan pada simpan
+        });
+    }
+    
+    // ISIH baris mengikut kedudukan (ascending: 1,2,3,...)
+    rows.sort((a, b) => a.ked - b.ked);
+    
+    // Masukkan ke dalam tbody mengikut susunan baharu
+    for (const row of rows) {
+        acaraTbody.appendChild(row.tr);
+    }
+    
+    acaraTableContainer.classList.remove('hidden');
+    if (resultsList && resultsList.length > 0) {
+        btnDelete.classList.remove('hidden');
+    } else {
+        btnDelete.classList.add('hidden');
+    }
+}
+            function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
             window.saveResults = async function() {
                 if (!currentAcaraId) return;
