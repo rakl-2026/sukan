@@ -181,6 +181,18 @@
             const pingatTbody = document.getElementById('pingat-tbody');
             const pingatPrintArea = document.getElementById('pingat-print-area');
 
+            // ========== Fungsi escapeHtml yang SELAMAT (handle non-string) ==========
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                const s = String(str);
+                return s.replace(/[&<>]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    return m;
+                });
+            }
+
             function showToast(type, msg) {
                 const t = document.getElementById('toast'), ic = document.getElementById('toast-icon'), m = document.getElementById('toast-msg');
                 ic.className = { success:'fa-solid fa-circle-check text-green-500', error:'fa-solid fa-circle-xmark text-red-500', info:'fa-solid fa-info-circle text-blue-500' }[type]||'fa-solid fa-info-circle';
@@ -299,7 +311,7 @@
                 }
             });
 
-            // [FIX] Fungsi renderAcaraTable DENGAN SUSUNAN MENGIKUT KEDUDUKAN
+            // ========== Fungsi renderAcaraTable dengan SUSUNAN MENGIKUT KEDUDUKAN ==========
             function renderAcaraTable(pesertaList, resultsList) {
                 acaraTbody.innerHTML = '';
                 if (!pesertaList.length) {
@@ -362,8 +374,6 @@
                 }
             }
 
-            function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
-
             window.saveResults = async function() {
                 if (!currentAcaraId) return;
                 const rows = acaraTbody.querySelectorAll('tr');
@@ -397,7 +407,7 @@
                     const data = await res.json();
                     if (data.status === 'success') {
                         showToast('success', data.message);
-                        // [FIX] Kelewatan 2 saat untuk memastikan Google Sheets selesai menulis
+                        // Kelewatan 2 saat untuk memastikan Google Sheets selesai menulis
                         setTimeout(() => {
                             selectAcara.dispatchEvent(new Event('change'));
                         }, 2000);
