@@ -114,7 +114,7 @@
             <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center shadow-lg animate-pulse-glow"><i class="fa-solid fa-ranking-star text-white"></i></div><h2 class="text-2xl sm:text-3xl font-bold text-gray-800">🏆 Papan Mata Keseluruhan</h2></div>
             <div id="leaderboard-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"><div class="col-span-full text-center py-10"><div class="inline-flex items-center gap-3 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl"></i><span class="text-lg">Memuatkan papan mata...</span></div></div></div>
             
-            <!-- BAHAGIAN TENGAH: Jadual Kutipan Pingat (kini sentiasa kelihatan, buang hidden) -->
+            <!-- BAHAGIAN TENGAH: Jadual Kutipan Pingat (kini sentiasa kelihatan) -->
             <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <table class="w-full text-left" id="leaderboard-table">
                     <thead>
@@ -129,7 +129,7 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard-tbody">
-                        <tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada data</td></tr>
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">Tiada数据</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -180,6 +180,18 @@
             let cachedData = null;
             let previousLeaderboard = null;
             let isFirstLoad = true;
+
+            // ========== FUNGSI escapeHtml SELAMAT (handle non-string) ==========
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                const s = String(str);
+                return s.replace(/[&<>]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    return m;
+                });
+            }
 
             function getHouseColor(houseName) {
                 if (houseColors[houseName]) return houseColors[houseName];
@@ -338,7 +350,7 @@
                 }).join('');
             }
 
-            // ========== MODAL FUNCTIONS (susunan keputusan mengikut kedudukan) ==========
+            // ========== MODAL FUNCTIONS (susunan keputusan mengikut kedudukan + escapeHtml selamat) ==========
             window.openResultsModal = async function(cardElement) {
                 const acaraId = cardElement.dataset.acaraId;
                 const acaraNama = cardElement.dataset.acaraNama;
@@ -350,7 +362,7 @@
                 contentDiv.innerHTML = '<div class="flex items-center justify-center py-10 text-gray-400"><i class="fa-solid fa-spinner fa-spin-pulse text-2xl mr-3"></i> Memuatkan keputusan...</div>';
 
                 try {
-                    const res = await fetch(API_URL + `?action=results&acara_id=${acaraId}`);
+                    const res = await fetch(API_URL + `?action=results&acara_id=${acaraId}`, { cache: 'no-store' });
                     let results = await res.json();
                     if (!results || results.length === 0) {
                         contentDiv.innerHTML = '<div class="text-center py-10 text-gray-500">📭 Tiada keputusan untuk acara ini.</div>';
@@ -397,19 +409,10 @@
                     html += '</tbody></table></div>';
                     contentDiv.innerHTML = html;
                 } catch (err) {
+                    console.error('Ralat memuat keputusan:', err);
                     contentDiv.innerHTML = '<div class="text-center py-10 text-red-500">❌ Gagal memuatkan keputusan.</div>';
                 }
             };
-
-            function escapeHtml(str) {
-                if (!str) return '';
-                return str.replace(/[&<>]/g, function(m) {
-                    if (m === '&') return '&amp;';
-                    if (m === '<') return '&lt;';
-                    if (m === '>') return '&gt;';
-                    return m;
-                });
-            }
 
             window.closeResultsModal = function() {
                 const modal = document.getElementById('results-modal');
