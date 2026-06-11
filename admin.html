@@ -40,55 +40,21 @@
             0% { background-position: 0% 50%; }
             100% { background-position: 200% 50%; }
         }
-        /* Gaya cetakan */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .print-area, .print-area * {
-                visibility: visible;
-            }
-            .print-area {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                margin: 0;
-                padding: 1rem;
-                background: white;
-                font-size: 12pt;
-            }
-            .print-area table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            .print-area th, .print-area td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
-            .print-area th {
-                background-color: #f3f4f6;
-            }
-            .no-print, .no-print * {
-                display: none !important;
-            }
-        }
     </style>
 </head>
 <body class="min-h-screen antialiased">
-    <header class="bg-white/80 backdrop-blur-md shadow-lg">
+    <header class="bg-white/80 backdrop-blur-md shadow-lg no-print">
         <div class="rainbow-line" style="height:5px; background:linear-gradient(90deg,#FF69B4,#FFA500,#FFD700,#8A2BE2,#FF69B4); background-size:200% 100%; animation: rainbow-shift 4s linear infinite;"></div>
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-lock text-2xl text-purple-600"></i>
-                <div><h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">Panel Admin</h1><p class="text-xs text-gray-500">SMK Raja ABdullah</p></div>
+                <div><h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">Panel Admin</h1><p class="text-xs text-gray-500">SMK Raja Abdullah</p></div>
             </div>
             <a href="index.html" class="text-sm text-pink-600 hover:underline"><i class="fa-solid fa-arrow-left"></i> Paparan Awam</a>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 no-print">
         <!-- Login Card -->
         <div id="login-card" class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-100 p-6 sm:p-8 animate-fade-in">
             <div class="text-center mb-6"><i class="fa-solid fa-shield-haltered text-5xl text-purple-400 mb-3"></i><h2 class="text-2xl font-bold text-gray-800">Log Masuk Admin</h2><p class="text-sm text-gray-500">Sila masukkan kata laluan</p></div>
@@ -108,7 +74,7 @@
                 <button onclick="switchTab('pingat')" id="tab-pingat" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-purple-100 transition-all duration-300 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Pingat Individu</button>
             </div>
 
-            <!-- Tab: Keputusan Acara (Kekal Asal + butang cetak) -->
+            <!-- Tab: Keputusan Acara -->
             <div id="content-acara" class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100 p-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-list-check text-purple-500 mr-2"></i>Masukkan / Edit Keputusan Acara</h2>
                 <div class="mb-4">
@@ -119,7 +85,7 @@
                 </div>
                 <div id="acara-loading" class="hidden text-center py-4 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> Memuatkan peserta...</div>
                 <div id="acara-table-container" class="overflow-x-auto mt-4 hidden">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse" id="acara-table">
                         <thead><tr class="bg-purple-50 text-purple-900 text-sm"><th class="px-3 py-2">Nama</th><th class="px-3 py-2">Rumah</th><th class="px-3 py-2">Bib</th><th class="px-3 py-2">Ked.</th><th class="px-3 py-2">Prestasi</th><th class="px-3 py-2">Mata</th></tr></thead>
                         <tbody id="acara-tbody"></tbody>
                     </table>
@@ -130,8 +96,8 @@
                         <button id="btn-delete-results" onclick="deleteResults()" class="hidden py-3 px-6 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition disabled:opacity-50">
                             <i class="fa-solid fa-trash"></i> Padam Semua Keputusan
                         </button>
-                        <button onclick="printAcaraTable()" class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
-                            <i class="fa-solid fa-print"></i> Cetak Keputusan
+                        <button id="btn-print-results" onclick="printResults()" class="hidden py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-print"></i> Cetak
                         </button>
                     </div>
                 </div>
@@ -154,17 +120,12 @@
                 <div id="merentas-message" class="mt-4 text-center text-sm font-medium hidden"></div>
             </div>
 
-            <!-- Tab: Kutipan Pingat Individu + butang cetak -->
+            <!-- Tab: Kutipan Pingat Individu -->
             <div id="content-pingat" class="hidden bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-yellow-100 p-6">
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                    <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Kutipan Pingat Individu</h2>
-                    <button onclick="printPingatTable()" class="py-2 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md flex items-center gap-2 transition">
-                        <i class="fa-solid fa-print"></i> Cetak Jadual Pingat
-                    </button>
-                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Kutipan Pingat Individu</h2>
                 <p class="text-sm text-gray-500 mb-4">Disusun mengikut emas terbanyak, diikuti perak dan gangsa.</p>
                 <div id="pingat-table-container" class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse" id="pingat-table">
                         <thead>
                             <tr class="bg-yellow-50 text-yellow-900 text-sm">
                                 <th class="px-3 py-2">Nama</th>
@@ -182,6 +143,11 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="pingat-print-area" class="mt-6 hidden">
+                    <button id="btn-print-pingat" onclick="printPingat()" class="w-full sm:w-auto py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-print"></i> Cetak Kutipan Pingat
+                    </button>
+                </div>
                 <div id="pingat-message" class="mt-4 text-center text-sm font-medium hidden"></div>
             </div>
         </div>
@@ -197,6 +163,7 @@
             let allEvents = [];
             let rumahList = [];
             let currentAcaraId = null;
+            let currentAcaraNama = '';
             let currentResults = [];
 
             const loginCard = document.getElementById('login-card');
@@ -209,17 +176,23 @@
             const acaraMessage = document.getElementById('acara-message');
             const btnSave = document.getElementById('btn-save-results');
             const btnDelete = document.getElementById('btn-delete-results');
+            const btnPrint = document.getElementById('btn-print-results');
+
+            const pingatTbody = document.getElementById('pingat-tbody');
+            const pingatPrintArea = document.getElementById('pingat-print-area');
 
             function showToast(type, msg) {
                 const t = document.getElementById('toast'), ic = document.getElementById('toast-icon'), m = document.getElementById('toast-msg');
                 ic.className = { success:'fa-solid fa-circle-check text-green-500', error:'fa-solid fa-circle-xmark text-red-500', info:'fa-solid fa-info-circle text-blue-500' }[type]||'fa-solid fa-info-circle';
                 m.textContent = msg; t.classList.remove('hidden');
-                clearTimeout(t._timeout); t._timeout = setTimeout(() => t.classList.add('hidden'), 3000);
+                if (t._timeout) clearTimeout(t._timeout);
+                t._timeout = setTimeout(() => t.classList.add('hidden'), 3000);
             }
 
             function setButtonsDisabled(disabled) {
                 btnSave.disabled = disabled;
-                btnDelete.disabled = disabled;
+                if (btnDelete) btnDelete.disabled = disabled;
+                if (btnPrint) btnPrint.disabled = disabled;
                 if (disabled) {
                     btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
                 } else {
@@ -276,8 +249,9 @@
                 document.getElementById('content-merentas').classList.add('hidden');
                 document.getElementById('content-pingat').classList.add('hidden');
 
-                if (tab === 'acara') document.getElementById('content-acara').classList.remove('hidden');
-                else if (tab === 'sukantara') {
+                if (tab === 'acara') {
+                    document.getElementById('content-acara').classList.remove('hidden');
+                } else if (tab === 'sukantara') {
                     document.getElementById('content-sukantara').classList.remove('hidden');
                     await loadRumahMarkahForm('sukantara');
                 } else if (tab === 'merentas') {
@@ -292,26 +266,33 @@
             selectAcara.addEventListener('change', async function() {
                 const acaraId = this.value;
                 currentAcaraId = acaraId;
+                currentAcaraNama = this.options[this.selectedIndex]?.text || '';
                 if (!acaraId) {
                     acaraTableContainer.classList.add('hidden');
-                    btnDelete.classList.add('hidden');
+                    if (btnDelete) btnDelete.classList.add('hidden');
+                    if (btnPrint) btnPrint.classList.add('hidden');
                     return;
                 }
                 acaraLoading.classList.remove('hidden');
                 acaraTableContainer.classList.add('hidden');
-                btnDelete.classList.add('hidden');
+                if (btnDelete) btnDelete.classList.add('hidden');
+                if (btnPrint) btnPrint.classList.add('hidden');
+                acaraMessage.classList.add('hidden');
                 try {
+                    // [TAMBAHAN] Gunakan cache: 'no-store' untuk mengelakkan respons ter cache
                     const [pesertaRes, resultsRes] = await Promise.all([
-                        fetch(API_URL + `?action=peserta&acara_id=${acaraId}`),
-                        fetch(API_URL + `?action=results&acara_id=${acaraId}`)
+                        fetch(API_URL + `?action=peserta&acara_id=${acaraId}`, { cache: 'no-store' }),
+                        fetch(API_URL + `?action=results&acara_id=${acaraId}`, { cache: 'no-store' })
                     ]);
-                    if (!pesertaRes.ok) throw new Error('Gagal muat peserta');
-                    if (!resultsRes.ok) throw new Error('Gagal muat keputusan');
+                    if (!pesertaRes.ok) throw new Error(`Gagal muat peserta - status ${pesertaRes.status}`);
                     const pesertaList = await pesertaRes.json();
-                    const resultsList = await resultsRes.json();
+                    let resultsList = [];
+                    if (resultsRes.ok) resultsList = await resultsRes.json();
                     currentResults = Array.isArray(resultsList) ? resultsList : [];
                     renderAcaraTable(pesertaList, currentResults);
                 } catch (err) {
+                    // [TAMBAHAN] Log ralat ke konsol untuk debugging
+                    console.error('Ralat muat data acara:', err);
                     acaraMessage.textContent = '❌ Gagal muat data. Sila cuba lagi.';
                     acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
                     acaraMessage.classList.remove('hidden');
@@ -320,96 +301,78 @@
                 }
             });
 
-            // ========== Fungsi renderAcaraTable DENGAN SORTING MENGIKUT KEDUDUKAN ==========
-        function renderAcaraTable(pesertaList, resultsList) {
-    acaraTbody.innerHTML = '';
-    if (!pesertaList.length) {
-        acaraTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
-        acaraTableContainer.classList.remove('hidden');
-        btnDelete.classList.add('hidden');
-        return;
-    }
+            function renderAcaraTable(pesertaList, resultsList) {
+                acaraTbody.innerHTML = '';
+                if (!pesertaList.length) {
+                    acaraTbody.innerHTML = '</table><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
+                    acaraTableContainer.classList.remove('hidden');
+                    if (btnDelete) btnDelete.classList.add('hidden');
+                    if (btnPrint) btnPrint.classList.add('hidden');
+                    return;
+                }
+                const resultMap = {};
+                if (resultsList) resultsList.forEach(r => { resultMap[r.peserta_id] = r; });
+                const kedOptions = Object.keys(pointsMapping).sort((a,b) => parseInt(a)-parseInt(b));
+                pesertaList.forEach(p => {
+                    const result = resultMap[p.peserta_id] || null;
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-gray-100 hover:bg-purple-50/50';
+                    tr.innerHTML = `
+                        <td class="px-3 py-2">${escapeHtml(p.nama_peserta)}</td>
+                        <td class="px-3 py-2">${escapeHtml(p.rumah)}</td>
+                        <td class="px-3 py-2">${escapeHtml(p.no_bib)}</td>
+                        <td class="px-3 py-2">
+                            <select class="kedudukan-select border border-gray-300 rounded px-2 py-1 text-sm" data-peserta="${p.peserta_id}">
+                                <option value="">-</option>
+                                ${kedOptions.map(k => `<option value="${k}" ${result && result.kedudukan == k ? 'selected' : ''}>${k}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="px-3 py-2"><input type="text" class="prestasi-input border border-gray-300 rounded px-2 py-1 text-sm w-24" data-peserta="${p.peserta_id}" value="${result ? escapeHtml(result.prestasi) : ''}" placeholder="cth: 13.10" /></td>
+                        <td class="px-3 py-2"><input type="number" class="mata-input border border-gray-200 rounded px-2 py-1 text-sm w-16 bg-gray-100" data-peserta="${p.peserta_id}" readonly value="${result && result.mata ? result.mata : '0'}" /></td>
+                    `;
+                    acaraTbody.appendChild(tr);
+                    const kedSelect = tr.querySelector('.kedudukan-select');
+                    const mataInput = tr.querySelector('.mata-input');
+                    kedSelect.addEventListener('change', function() {
+                        const ked = this.value;
+                        mataInput.value = (ked && pointsMapping[ked]) ? pointsMapping[ked] : 0;
+                    });
+                    if (result && result.kedudukan) {
+                        mataInput.value = pointsMapping[result.kedudukan] || 0;
+                    }
+                });
+                acaraTableContainer.classList.remove('hidden');
+                if (resultsList && resultsList.length > 0) {
+                    if (btnDelete) btnDelete.classList.remove('hidden');
+                    if (btnPrint) btnPrint.classList.remove('hidden');
+                } else {
+                    if (btnDelete) btnDelete.classList.add('hidden');
+                    if (btnPrint) btnPrint.classList.add('hidden');
+                }
+            }
 
-    // Bina peta keputusan
-    const resultMap = {};
-    if (resultsList) resultsList.forEach(r => { resultMap[r.peserta_id] = r; });
-
-    const kedOptions = Object.keys(pointsMapping).sort((a,b) => parseInt(a)-parseInt(b));
-    
-    // Bina array baris sementara
-    const rows = [];
-    for (const p of pesertaList) {
-        const result = resultMap[p.peserta_id] || null;
-        const tr = document.createElement('tr');
-        tr.className = 'border-b border-gray-100 hover:bg-purple-50/50';
-        tr.setAttribute('data-peserta-id', p.peserta_id);
-        
-        // Dapatkan nilai kedudukan (jika ada)
-        let kedValue = result ? result.kedudukan : '';
-        let kedNumber = (kedValue && !isNaN(parseInt(kedValue))) ? parseInt(kedValue) : 999;
-        
-        tr.innerHTML = `
-            <td class="px-3 py-2">${escapeHtml(p.nama_peserta)}</td>
-            <td class="px-3 py-2">${escapeHtml(p.rumah)}</td>
-            <td class="px-3 py-2">${escapeHtml(p.no_bib)}</td>
-            <td class="px-3 py-2">
-                <select class="kedudukan-select border border-gray-300 rounded px-2 py-1 text-sm" data-peserta="${p.peserta_id}">
-                    <option value="">-</option>
-                    ${kedOptions.map(k => `<option value="${k}" ${result && result.kedudukan == k ? 'selected' : ''}>${k}</option>`).join('')}
-                </select>
-            </td>
-            <td class="px-3 py-2"><input type="text" class="prestasi-input border border-gray-300 rounded px-2 py-1 text-sm w-24" data-peserta="${p.peserta_id}" value="${result ? escapeHtml(result.prestasi) : ''}" placeholder="cth: 13.10" /></td>
-            <td class="px-3 py-2"><input type="number" class="mata-input border border-gray-200 rounded px-2 py-1 text-sm w-16 bg-gray-100" data-peserta="${p.peserta_id}" readonly value="${result ? result.mata : '0'}" /></td>
-        `;
-        
-        // Simpan baris bersama nilai kedudukan (nombor)
-        rows.push({ tr, ked: kedNumber });
-        
-        // Event listener untuk dropdown
-        const kedSelect = tr.querySelector('.kedudukan-select');
-        const mataInput = tr.querySelector('.mata-input');
-        kedSelect.addEventListener('change', function() {
-            const ked = this.value;
-            mataInput.value = (ked && pointsMapping[ked]) ? pointsMapping[ked] : 0;
-            // Selepas tukar kedudukan, kita tidak perlu susun semula sekarang – serahkan pada simpan
-        });
-    }
-    
-    // ISIH baris mengikut kedudukan (ascending: 1,2,3,...)
-    rows.sort((a, b) => a.ked - b.ked);
-    
-    // Masukkan ke dalam tbody mengikut susunan baharu
-    for (const row of rows) {
-        acaraTbody.appendChild(row.tr);
-    }
-    
-    acaraTableContainer.classList.remove('hidden');
-    if (resultsList && resultsList.length > 0) {
-        btnDelete.classList.remove('hidden');
-    } else {
-        btnDelete.classList.add('hidden');
-    }
-}
-            function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+            function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
 
             window.saveResults = async function() {
                 if (!currentAcaraId) return;
                 const rows = acaraTbody.querySelectorAll('tr');
                 const results = [];
-                for (const row of rows) {
+                let valid = true;
+                rows.forEach(row => {
                     const kedSelect = row.querySelector('.kedudukan-select');
                     const prestasiInput = row.querySelector('.prestasi-input');
                     const mataInput = row.querySelector('.mata-input');
-                    if (!kedSelect || !prestasiInput || !mataInput) continue;
+                    if (!kedSelect || !prestasiInput || !mataInput) return;
                     const ked = kedSelect.value;
-                    if (!ked) continue;
+                    if (!ked) return;
                     const pesertaId = kedSelect.dataset.peserta;
-                    const rumah = row.cells[1].textContent.trim();
+                    const rumah = row.cells[1]?.textContent.trim() || '';
                     const prestasi = prestasiInput.value.trim();
                     const mata = mataInput.value;
-                    if (!prestasi) { showToast('error','Isi prestasi untuk semua yang ada kedudukan.'); return; }
+                    if (!prestasi) { showToast('error','Isi prestasi untuk semua yang ada kedudukan.'); valid = false; return; }
                     results.push({ acara_id: currentAcaraId, peserta_id: pesertaId, rumah, kedudukan: ked, prestasi, mata: parseInt(mata) });
-                }
+                });
+                if (!valid) return;
                 if (results.length === 0) { showToast('info','Tiada keputusan untuk disimpan.'); return; }
 
                 setButtonsDisabled(true);
@@ -423,16 +386,21 @@
                     const data = await res.json();
                     if (data.status === 'success') {
                         showToast('success', data.message);
-                        selectAcara.dispatchEvent(new Event('change'));
+                        // [TAMBAHAN] Kelewatan 500ms untuk mengelakkan race condition
+                        setTimeout(() => {
+                            selectAcara.dispatchEvent(new Event('change'));
+                        }, 500);
                     } else {
                         acaraMessage.textContent = '❌ ' + (data.message || 'Ralat');
                         acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
                         acaraMessage.classList.remove('hidden');
+                        setButtonsDisabled(false);
                     }
                 } catch (err) {
+                    console.error('Ralat simpan:', err);
                     acaraMessage.textContent = '❌ Ralat rangkaian.';
+                    acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
                     acaraMessage.classList.remove('hidden');
-                } finally {
                     setButtonsDisabled(false);
                 }
             };
@@ -440,23 +408,120 @@
             window.deleteResults = async function() {
                 if (!currentAcaraId) return;
                 if (!confirm('Padam SEMUA keputusan untuk acara ini?')) return;
-                btnDelete.disabled = true;
+                if (btnDelete) btnDelete.disabled = true;
+                if (btnPrint) btnPrint.disabled = true;
                 try {
                     const fd = new URLSearchParams(); fd.append('action','deleteResults'); fd.append('password',adminPassword); fd.append('acara_id',currentAcaraId);
                     const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:fd.toString() });
                     const data = await res.json();
                     if (data.status === 'success') {
                         showToast('success', data.message);
-                        selectAcara.dispatchEvent(new Event('change'));
+                        setTimeout(() => selectAcara.dispatchEvent(new Event('change')), 500);
                     } else {
                         showToast('error', data.message || 'Gagal padam');
                     }
                 } catch (err) { showToast('error','Ralat rangkaian'); }
-                finally { btnDelete.disabled = false; }
+                finally { if (btnDelete) btnDelete.disabled = false; if (btnPrint) btnPrint.disabled = false; }
             };
 
+            window.printResults = function() {
+                const table = document.getElementById('acara-table');
+                if (!table) return;
+                const rows = table.querySelectorAll('tbody tr');
+                if (rows.length === 0) { showToast('info', 'Tiada data untuk dicetak.'); return; }
+                let tbodyHTML = '';
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length < 6) return;
+                    const nama = cells[0].textContent.trim();
+                    const rumah = cells[1].textContent.trim();
+                    const bib = cells[2].textContent.trim();
+                    const kedSelect = row.querySelector('.kedudukan-select');
+                    const ked = kedSelect && kedSelect.selectedIndex >= 0 ? (kedSelect.options[kedSelect.selectedIndex]?.text || '-') : (cells[3].textContent.trim() || '-');
+                    const prestasiInput = row.querySelector('.prestasi-input');
+                    const prestasi = prestasiInput ? prestasiInput.value.trim() : cells[4].textContent.trim();
+                    const mataInput = row.querySelector('.mata-input');
+                    const mata = mataInput ? mataInput.value.trim() : cells[5].textContent.trim();
+                    tbodyHTML += `<tr><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(nama)}</td><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(rumah)}</td><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(bib)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(ked)}</td><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(prestasi)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(mata)}</td></tr>`;
+                });
+                const title = currentAcaraNama || 'Acara';
+                openPrintWindow('Keputusan: ' + title, tbodyHTML, false);
+            };
+
+            window.printPingat = function() {
+                const table = document.getElementById('pingat-table');
+                if (!table) return;
+                const rows = table.querySelectorAll('tbody tr');
+                if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1 && rows[0].querySelector('td[colspan]'))) {
+                    showToast('info', 'Tiada data pingat untuk dicetak.');
+                    return;
+                }
+                let tbodyHTML = '';
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length < 8) return;
+                    const nama = cells[0].textContent.trim();
+                    const rumah = cells[1].textContent.trim();
+                    const bib = cells[2].textContent.trim();
+                    const emas = cells[3].textContent.trim();
+                    const perak = cells[4].textContent.trim();
+                    const gangsa = cells[5].textContent.trim();
+                    const tempat4 = cells[6].textContent.trim();
+                    const mata = cells[7].textContent.trim();
+                    tbodyHTML += `<tr><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(nama)}</td><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(rumah)}</td><td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(bib)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(emas)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(perak)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(gangsa)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(tempat4)}</td><td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${escapeHtml(mata)}</td></tr>`;
+                });
+                openPrintWindow('Kutipan Pingat Individu', tbodyHTML, true);
+            };
+
+            function openPrintWindow(title, tbodyHTML, isPingat) {
+                const printContent = `
+                    <div style="font-family: 'Poppins', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h2 style="margin: 0; color: #6b21a8;">SMK RAJA ABDULLAH</h2>
+                            <h3 style="margin: 5px 0; color: #db2777;">KARNIVAL OLAHRAGA TAHUNAN 2026</h3>
+                            <h4 style="margin: 5px 0; color: #4b5563;">${escapeHtml(title)}</h4>
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                            <thead>
+                                <tr style="background: #f3e8ff;">
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Nama</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Rumah</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Bib</th>
+                                    ${isPingat ? `
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">🥇</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">🥈</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">🥉</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Ke-4</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Mata</th>
+                                    ` : `
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Ked.</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Prestasi</th>
+                                    <th style="padding: 10px; border: 1px solid #d1d5db;">Mata</th>
+                                    `}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tbodyHTML}
+                            </tbody>
+                        </table>
+                        <p style="text-align: right; margin-top: 30px; font-size: 0.8rem; color: #9ca3af;">Dicetak pada: ${new Date().toLocaleString('ms-MY')}</p>
+                    </div>
+                `;
+                const printWindow = window.open('', '_blank', 'width=900,height=600');
+                if (!printWindow) {
+                    showToast('error', 'Sila benarkan tetingkap pop-up untuk mencetak.');
+                    return;
+                }
+                printWindow.document.open();
+                printWindow.document.write('<!DOCTYPE html><html lang="ms"><head><meta charset="UTF-8"><title>' + escapeHtml(title) + '</title><style>body{font-family:Poppins,sans-serif;padding:20px;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style></head><body>');
+                printWindow.document.write(printContent);
+                printWindow.document.write('<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print();window.onafterprint=function(){window.close();};},500);};</scr' + 'ipt>');
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+            }
+
             async function loadRumahMarkahForm(type) {
-                const formDiv = document.getElementById(type+'-form');
+                const formDiv = document.getElementById(type + '-form');
                 if (!formDiv) return;
                 await ensureRumahList();
                 let currentMarks = {};
@@ -465,15 +530,15 @@
                     const res = await fetch(API_URL + `?action=${action}`);
                     const data = await res.json();
                     if (Array.isArray(data)) data.forEach(d => { currentMarks[d.rumah] = d.markah; });
-                } catch(e) {}
+                } catch(e) { console.warn(e); }
                 formDiv.innerHTML = '';
                 if (!rumahList.length) { formDiv.innerHTML = '<p class="text-red-500">Tiada data rumah sukan.</p>'; return; }
                 rumahList.forEach(rumah => {
                     const warna = rumah.warna || '#8A2BE2';
                     const nilai = currentMarks[rumah.nama] !== undefined ? currentMarks[rumah.nama] : '';
                     const div = document.createElement('div'); div.className = 'flex flex-col gap-1';
-                    div.innerHTML = `<label class="text-sm font-semibold flex items-center gap-2"><span class="w-4 h-4 rounded-full" style="background-color:${warna};"></span>${rumah.nama}</label>
-                        <input type="number" step="any" class="markah-rumah-input border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 outline-none" data-rumah="${rumah.nama}" value="${nilai}" placeholder="0.00" />`;
+                    div.innerHTML = `<label class="text-sm font-semibold flex items-center gap-2"><span class="w-4 h-4 rounded-full" style="background-color:${warna};"></span>${escapeHtml(rumah.nama)}</label>
+                        <input type="number" step="any" class="markah-rumah-input border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 outline-none" data-rumah="${escapeHtml(rumah.nama)}" value="${nilai}" placeholder="0.00" />`;
                     formDiv.appendChild(div);
                 });
             }
@@ -484,47 +549,49 @@
                     const res = await fetch(API_URL + '?action=rumah');
                     const data = await res.json();
                     if (Array.isArray(data)) rumahList = data;
-                } catch(e) {}
+                } catch(e) { console.warn(e); }
             }
 
             window.saveRumahMarkah = async function(type) {
-                const formDiv = document.getElementById(type+'-form');
+                const formDiv = document.getElementById(type + '-form');
+                if (!formDiv) return;
                 const inputs = formDiv.querySelectorAll('.markah-rumah-input');
                 const data = [];
                 inputs.forEach(inp => { const val = inp.value.trim(); if (val !== '') data.push({ rumah: inp.dataset.rumah, markah: parseFloat(val) }); });
                 if (!data.length) { showToast('info','Tiada markah.'); return; }
                 const fd = new URLSearchParams(); fd.append('action', type==='sukantara'?'submitSukantara':'submitMerentas'); fd.append('password', adminPassword); fd.append('data', JSON.stringify(data));
-                const msgDiv = document.getElementById(type+'-message');
+                const msgDiv = document.getElementById(type + '-message');
                 try {
                     const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:fd.toString() });
                     const resp = await res.json();
                     msgDiv.textContent = resp.status==='success' ? '✅ '+resp.message : '❌ '+(resp.message||'Ralat');
                     msgDiv.className = 'mt-4 text-center text-sm font-medium ' + (resp.status==='success'?'text-green-600':'text-red-600');
                     msgDiv.classList.remove('hidden');
+                    setTimeout(() => msgDiv.classList.add('hidden'), 3000);
                 } catch (err) { msgDiv.textContent='❌ Ralat rangkaian.'; msgDiv.classList.remove('hidden'); }
             };
 
-            // ===== KUTIPAN PINGAT INDIVIDU =====
             async function loadPingatIndividu() {
-                const tbody = document.getElementById('pingat-tbody');
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Memuatkan data...</td></tr>';
+                pingatTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Memuatkan data...</td></tr>';
+                pingatPrintArea.classList.add('hidden');
                 try {
                     const res = await fetch(API_URL + '?action=pingat_individu');
                     const data = await res.json();
                     if (!Array.isArray(data)) throw new Error('Format salah');
                     renderPingatTable(data);
                 } catch (err) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-500">❌ Gagal memuatkan kutipan pingat</td></tr>';
+                    pingatTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-500">❌ Gagal memuatkan kutipan pingat</td></tr>';
                 }
             }
 
             function renderPingatTable(data) {
-                const tbody = document.getElementById('pingat-tbody');
+                pingatTbody.innerHTML = '';
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Tiada rekod keputusan lagi</td></tr>';
+                    pingatTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Tiada rekod keputusan lagi</td></td>';
+                    pingatPrintArea.classList.add('hidden');
                     return;
                 }
-                tbody.innerHTML = data.map(p => `
+                pingatTbody.innerHTML = data.map(p => `
                     <tr class="border-b border-gray-100 hover:bg-yellow-50/50">
                         <td class="px-3 py-2 font-medium">${escapeHtml(p.nama)}</td>
                         <td class="px-3 py-2">${escapeHtml(p.rumah)}</td>
@@ -536,73 +603,8 @@
                         <td class="px-3 py-2 text-center font-semibold">${p.jumlah_mata}</td>
                     </tr>
                 `).join('');
+                pingatPrintArea.classList.remove('hidden');
             }
-
-            function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-
-            // ===== FUNGSI CETAK UNTUK KEPUTUSAN ACARA =====
-            window.printAcaraTable = function() {
-                const container = document.getElementById('acara-table-container');
-                const selectElem = document.getElementById('select-acara');
-                const selectedText = selectElem.options[selectElem.selectedIndex]?.text || 'Acara tidak dipilih';
-                if (!container || container.classList.contains('hidden')) {
-                    showToast('error', 'Tiada keputusan acara untuk dicetak. Sila pilih acara terlebih dahulu.');
-                    return;
-                }
-                const table = container.querySelector('table');
-                if (!table || table.rows.length <= 1) {
-                    showToast('error', 'Tiada data untuk dicetak.');
-                    return;
-                }
-                const printContent = document.createElement('div');
-                printContent.className = 'print-area';
-                const header = document.createElement('div');
-                header.style.marginBottom = '20px';
-                header.style.textAlign = 'center';
-                header.innerHTML = `<h1 style="margin:5px 0 0;">Kejohanan Sukan SMK Raja Abdullah 2026</h1><h2 style="margin:0;">Keputusan Acara: ${escapeHtml(selectedText)}</h2><p style="margin:5px 0 0;">KEPUTUSAN RASMI</p>`;
-                const tableClone = table.cloneNode(true);
-                // Bersihkan elemen input/select dalam salinan untuk cetakan (tukar kepada teks)
-                tableClone.querySelectorAll('.kedudukan-select').forEach(sel => {
-                    const selectedVal = sel.options[sel.selectedIndex]?.textContent || '-';
-                    const td = sel.closest('td');
-                    if (td) td.textContent = selectedVal;
-                });
-                tableClone.querySelectorAll('.prestasi-input, .mata-input').forEach(inp => {
-                    const value = inp.value || '';
-                    const td = inp.closest('td');
-                    if (td) td.textContent = value;
-                });
-                printContent.appendChild(header);
-                printContent.appendChild(tableClone);
-                document.body.appendChild(printContent);
-                window.print();
-                document.body.removeChild(printContent);
-                showToast('success', 'Cetakan dihantar.');
-            };
-
-            // ===== FUNGSI CETAK UNTUK JADUAL PINGAT =====
-            window.printPingatTable = function() {
-                const container = document.getElementById('pingat-table-container');
-                if (!container) return;
-                const table = container.querySelector('table');
-                if (!table || table.rows.length <= 1) {
-                    showToast('error', 'Tiada data pingat untuk dicetak.');
-                    return;
-                }
-                const printDiv = document.createElement('div');
-                printDiv.className = 'print-area';
-                const header = document.createElement('div');
-                header.style.marginBottom = '20px';
-                header.style.textAlign = 'center';
-                header.innerHTML = `<h2 style="margin:0;">Kutipan Pingat Individu</h2><p style="margin:5px 0 0;">SMK Raja Abdullah</p>`;
-                const tableClone = table.cloneNode(true);
-                printDiv.appendChild(header);
-                printDiv.appendChild(tableClone);
-                document.body.appendChild(printDiv);
-                window.print();
-                document.body.removeChild(printDiv);
-                showToast('success', 'Cetakan jadual pingat dihantar.');
-            };
 
             document.getElementById('password-input').focus();
         })();
