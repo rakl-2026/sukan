@@ -279,7 +279,6 @@
                 if (btnPrint) btnPrint.classList.add('hidden');
                 acaraMessage.classList.add('hidden');
                 try {
-                    // [TAMBAHAN] Gunakan cache: 'no-store' untuk mengelakkan respons ter cache
                     const [pesertaRes, resultsRes] = await Promise.all([
                         fetch(API_URL + `?action=peserta&acara_id=${acaraId}`, { cache: 'no-store' }),
                         fetch(API_URL + `?action=results&acara_id=${acaraId}`, { cache: 'no-store' })
@@ -291,7 +290,6 @@
                     currentResults = Array.isArray(resultsList) ? resultsList : [];
                     renderAcaraTable(pesertaList, currentResults);
                 } catch (err) {
-                    // [TAMBAHAN] Log ralat ke konsol untuk debugging
                     console.error('Ralat muat data acara:', err);
                     acaraMessage.textContent = '❌ Gagal muat data. Sila cuba lagi.';
                     acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
@@ -301,10 +299,11 @@
                 }
             });
 
+            // [FIX] Fungsi renderAcaraTable DENGAN SUSUNAN MENGIKUT KEDUDUKAN
             function renderAcaraTable(pesertaList, resultsList) {
                 acaraTbody.innerHTML = '';
                 if (!pesertaList.length) {
-                    acaraTbody.innerHTML = '</table><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
+                    acaraTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Tiada peserta</td></tr>';
                     acaraTableContainer.classList.remove('hidden');
                     if (btnDelete) btnDelete.classList.add('hidden');
                     if (btnPrint) btnPrint.classList.add('hidden');
@@ -313,8 +312,20 @@
                 const resultMap = {};
                 if (resultsList) resultsList.forEach(r => { resultMap[r.peserta_id] = r; });
                 const kedOptions = Object.keys(pointsMapping).sort((a,b) => parseInt(a)-parseInt(b));
-                pesertaList.forEach(p => {
-                    const result = resultMap[p.peserta_id] || null;
+                
+                // Bina array peserta dengan maklumat kedudukan untuk diisih
+                const pesertaWithRank = pesertaList.map(p => {
+                    const result = resultMap[p.peserta_id];
+                    let ked = result ? parseInt(result.kedudukan) : null;
+                    const sortKey = (ked !== null && !isNaN(ked)) ? ked : 999;
+                    return { ...p, kedudukan: ked, sortKey: sortKey, result: result };
+                });
+                // Isih mengikut sortKey (kedudukan menaik)
+                pesertaWithRank.sort((a, b) => a.sortKey - b.sortKey);
+                
+                // Loop peserta yang telah diisih
+                pesertaWithRank.forEach(p => {
+                    const result = p.result;
                     const tr = document.createElement('tr');
                     tr.className = 'border-b border-gray-100 hover:bg-purple-50/50';
                     tr.innerHTML = `
@@ -386,10 +397,10 @@
                     const data = await res.json();
                     if (data.status === 'success') {
                         showToast('success', data.message);
-                        // [TAMBAHAN] Kelewatan 500ms untuk mengelakkan race condition
+                        // [FIX] Kelewatan 2 saat untuk memastikan Google Sheets selesai menulis
                         setTimeout(() => {
                             selectAcara.dispatchEvent(new Event('change'));
-                        }, 500);
+                        }, 2000);
                     } else {
                         acaraMessage.textContent = '❌ ' + (data.message || 'Ralat');
                         acaraMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
@@ -416,7 +427,7 @@
                     const data = await res.json();
                     if (data.status === 'success') {
                         showToast('success', data.message);
-                        setTimeout(() => selectAcara.dispatchEvent(new Event('change')), 500);
+                        setTimeout(() => selectAcara.dispatchEvent(new Event('change')), 2000);
                     } else {
                         showToast('error', data.message || 'Gagal padam');
                     }
@@ -587,7 +598,7 @@
             function renderPingatTable(data) {
                 pingatTbody.innerHTML = '';
                 if (data.length === 0) {
-                    pingatTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Tiada rekod keputusan lagi</td></td>';
+                    pingatTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Tiada rekod keputusan lagi</td></tr>';
                     pingatPrintArea.classList.add('hidden');
                     return;
                 }
